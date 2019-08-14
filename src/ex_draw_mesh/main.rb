@@ -59,6 +59,7 @@ module Examples
       toolbar.add_item(cmd_screen_polygons)
       toolbar.add_item(cmd_toggle_light)
       toolbar.add_item(cmd_toggle_edges)
+      toolbar.restore
 
       file_loaded(__FILE__)
     end
