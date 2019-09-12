@@ -7,7 +7,8 @@ module Examples
 
       def initialize
         @triangles = []
-        @normals = []
+        @normals = [] # Vertex Normals
+        @uvs = [] # Vertex UVs
         @edges = []
         update_mesh
       end
@@ -36,22 +37,47 @@ module Examples
       end
 
       def draw(view)
+        options = {}
+        options[:normals] = @normals if OPTIONS.use_light
+
+        draw_textures = OPTIONS.draw_textures && textured_material?(view.model)
+        texture_id = nil
+        if draw_textures
+          material = view.model.materials.current
+          image_rep = material.texture.image_rep
+          texture_id = view.load_texture(image_rep)
+          options[:texture] = texture_id
+          options[:uvs] = @uvs
+        end
+
         view.drawing_color = Sketchup::Color.new(128, 0, 0)
-        if OPTIONS.use_light
-          view.draw(GL_TRIANGLES, @triangles, normals: @normals)
-        else
-          view.draw(GL_TRIANGLES, @triangles)
+        view.draw(GL_TRIANGLES, @triangles, **options)
+
+        if draw_textures
+          view.release_texture(texture_id)
         end
 
         if OPTIONS.draw_edges
           view.line_stipple = ''
           view.line_width = 1
-        view.drawing_color = Sketchup::Color.new(255, 128, 0)
+          view.drawing_color = Sketchup::Color.new(255, 128, 0)
           view.draw(GL_LINES, @edges)
         end
       end
 
       private
+
+      # @param [Sketchup::Model]
+      def textured_material?(model)
+        material = model.materials.current
+        material && material.texture
+      end
+
+      # @param [Array] uvq
+      # @return [Geom::Point3d] uv
+      def uvq2uv(uvq)
+        Geom::Point3d.new(uvq.x / uvq.z, uvq.y / uvq.z, 1.0)
+      end
 
       def update_mesh
         model = Sketchup.active_model
@@ -71,6 +97,11 @@ module Examples
             polygon.each { |i|
               @triangles << mesh.point_at(i.abs)
               @normals << mesh.normal_at(i.abs)
+              # TODO: Support UVQ?
+              @uvs << uvq2uv(mesh.uv_at(i.abs, true))
+              # uv = uvq2uv(mesh.uv_at(i.abs, true))
+              # uv.y = -uv.y
+              # @uvs << uv
             }
           }
         }
