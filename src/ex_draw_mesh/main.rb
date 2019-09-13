@@ -8,6 +8,8 @@ require 'ex_draw_mesh/draw_mesh_tool'
 module Examples
   module DrawMesh
 
+    ICON_PATH = File.join(__dir__, 'icons').freeze
+
     class Options
       attr_accessor :use_light
       attr_accessor :draw_edges
@@ -21,11 +23,26 @@ module Examples
       Sketchup.active_model.select_tool(DrawMeshTool.new)
     end
 
+
+    # @param [String] filename
+    # @return [String]
+    def self.icon(filename)
+      File.join(ICON_PATH, filename)
+    end
+
+    # @param [UI::Command]
+    # @param [String] filename
+    def self.set_icon(command, filename)
+      command.small_icon = self.icon(filename)
+      command.large_icon = self.icon(filename)
+    end
+
     unless file_loaded?(__FILE__)
       cmd_screen_polygons = UI::Command.new('Draw Mesh') {
         self.draw_shaded
       }.tap { |cmd|
         cmd.tooltip = 'Draw Mesh'
+        self.set_icon(cmd, 'mesh.svg')
       }
 
       cmd_toggle_light = UI::Command.new('Toggle Light') {
@@ -36,6 +53,7 @@ module Examples
         cmd.set_validation_proc {
           OPTIONS.use_light ? MF_CHECKED : MF_ENABLED
         }
+        self.set_icon(cmd, 'toggle-light.svg')
       }
 
       cmd_toggle_edges = UI::Command.new('Toggle Edges') {
@@ -46,6 +64,7 @@ module Examples
         cmd.set_validation_proc {
           OPTIONS.draw_edges ? MF_CHECKED : MF_ENABLED
         }
+        self.set_icon(cmd, 'toggle-edges.svg')
       }
 
       cmd_toggle_textures = UI::Command.new('Toggle Textures') {
@@ -56,6 +75,7 @@ module Examples
         cmd.set_validation_proc {
           OPTIONS.draw_textures ? MF_CHECKED : MF_ENABLED
         }
+        self.set_icon(cmd, 'toggle-textures.svg')
       }
 
       title = 'Draw Mesh'
