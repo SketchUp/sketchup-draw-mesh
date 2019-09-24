@@ -9,7 +9,7 @@ module Examples
 
     unless file_loaded?(__FILE__)
       ex = SketchupExtension.new('Draw Mesh Example', 'ex_draw_mesh/main')
-      ex.description = 'SketchUp Ruby API example drawing shaded polygons to the viewport.'
+      ex.description = 'SketchUp Ruby API example drawing polygons to the viewport.'
       ex.version     = '1.0.0'
       ex.copyright   = 'Trimble Inc. © 2019'
       ex.creator     = 'SketchUp'

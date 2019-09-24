@@ -90,7 +90,7 @@ module Examples
         kUVQBack = Geom::PolygonMesh::MESH_UVQ_BACK
         kNormals = Geom::PolygonMesh::MESH_NORMALS
 
-        flags = kPoints | kUVQFront | kUVQBack | kNormals # equals to 7
+        flags = kPoints | kUVQFront | kUVQBack | kNormals
 
         faces.each { |face|
           mesh = face.mesh(flags)
@@ -98,11 +98,7 @@ module Examples
             polygon.each { |i|
               @triangles << mesh.point_at(i.abs)
               @normals << mesh.normal_at(i.abs)
-              # TODO: Support UVQ?
               @uvs << uvq2uv(mesh.uv_at(i.abs, true))
-              # uv = uvq2uv(mesh.uv_at(i.abs, true))
-              # uv.y = -uv.y
-              # @uvs << uv
             }
           }
         }
