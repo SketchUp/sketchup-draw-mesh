@@ -10,15 +10,24 @@ module Examples
         @normals = [] # Vertex Normals
         @uvs = [] # Vertex UVs
         @edges = []
+        @texture_id = 0;
         update_mesh
       end
 
       def activate
         view = Sketchup.active_model.active_view
+
+        if textured_material?(view.model)
+          material = view.model.materials.current
+          image_rep = material.texture.image_rep
+          @texture_id = view.load_texture(image_rep)
+        end
+
         view.invalidate
       end
 
       def deactivate(view)
+        view.release_texture(@texture_id) if @texture_id
         view.invalidate
       end
 
@@ -40,22 +49,14 @@ module Examples
         options = {}
         options[:normals] = @normals if OPTIONS.use_light
 
-        draw_textures = OPTIONS.draw_textures && textured_material?(view.model)
-        texture_id = nil
+        draw_textures = OPTIONS.draw_textures && @texture_id
         if draw_textures
-          material = view.model.materials.current
-          image_rep = material.texture.image_rep
-          texture_id = view.load_texture(image_rep)
-          options[:texture] = texture_id
+          options[:texture] = @texture_id
           options[:uvs] = @uvs
         end
 
         view.drawing_color = Sketchup::Color.new(128, 0, 0)
         view.draw(GL_TRIANGLES, @triangles, **options)
-
-        if draw_textures
-          view.release_texture(texture_id)
-        end
 
         if OPTIONS.draw_edges
           view.line_stipple = ''
