@@ -45,6 +45,7 @@ module Examples
         bounds
       end
 
+      # @param [Sketchup::View] view
       def draw(view)
         options = {}
         options[:normals] = @normals if OPTIONS.use_light
